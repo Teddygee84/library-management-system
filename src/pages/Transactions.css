@@ -1,0 +1,85 @@
+.page h2 {
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  margin: 2rem 0 1rem;
+}
+
+/* Transaction form */
+.tx-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  align-items: center;
+}
+
+.tx-form select,
+.tx-form input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  flex: 1;
+  min-width: 120px;
+  font-size: 0.95rem;
+}
+
+.tx-form button {
+  padding: 0.5rem 1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.tx-form button:hover {
+  background: #2980b9;
+}
+
+/* Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.data-table th {
+  background: #ecf0f1;
+  font-weight: 600;
+}
+
+/* Transaction type badges */
+.tx-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.tx-badge.borrow {
+  background: #ffe5e5;
+  color: #c0392b;
+}
+
+.tx-badge.add {
+  background: #e5f6e5;
+  color: #27ae60;
+}
