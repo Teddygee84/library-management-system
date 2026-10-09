@@ -1,9 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import useLocalStorage from '../hooks/useLocalStorage';
 import './Users.css';
 
 function Users() {
-  // Seed data goes directly into the fallback value
   const seedUsers = [
     {
       id: 1,
@@ -16,6 +15,14 @@ function Users() {
 
   const [users, setUsers] = useLocalStorage('users', seedUsers);
   const [currentUser, setCurrentUser] = useLocalStorage('currentUser', null);
+
+  // If users list is empty (from a previous bad save), apply the seed
+  useEffect(() => {
+    if (!users || users.length === 0) {
+      setUsers(seedUsers);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -47,7 +54,7 @@ function Users() {
             }}
           >
             <label>Membership ID</label>
-            <input name="membership" placeholder="e.g. ADM001" required />
+            <input name="membership" placeholder="e.g. 1" required />
             <label>Password</label>
             <input name="password" type="password" placeholder="Enter password" />
             <button className="primary-btn full" type="submit">Sign In</button>
@@ -99,7 +106,6 @@ function Users() {
       return alert('Name and Membership ID are required');
     }
 
-    // Check duplicate membership ID
     const duplicate = users.find(
       (u) =>
         u.membershipId.toLowerCase() === form.membershipId.toLowerCase() &&
