@@ -3,11 +3,91 @@ import useLocalStorage from '../hooks/useLocalStorage';
 import './Users.css';
 
 function Users() {
-  const [users, setUsers] = useLocalStorage('users', []);
+  // Seed data goes directly into the fallback value
+  const seedUsers = [
+    {
+      id: 1,
+      name: 'Molapo',
+      membershipId: '1',
+      role: 'Admin',
+      password: 'Dash',
+    },
+  ];
+
+  const [users, setUsers] = useLocalStorage('users', seedUsers);
   const [currentUser, setCurrentUser] = useLocalStorage('currentUser', null);
 
-  const [form, setForm] = useState({ name: '', membershipId: '', role: 'member' });
-  const [editingId, setEditingId] = useState(null);
+  const [search, setSearch] = useState('');
+  const [roleFilter, setRoleFilter] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState(null);
+
+  const emptyForm = { name: '', membershipId: '', role: 'Member', password: '' };
+  const [form, setForm] = useState(emptyForm);
+
+  // ===== LOGIN VIEW =====
+  if (!currentUser) {
+    return (
+      <div className="login-wrap">
+        <div className="login-card">
+          <div className="brand-mark">CL</div>
+          <h1>Community Library</h1>
+          <p className="login-sub">Library Management System</p>
+
+          <form
+            className="login-form"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const membershipId = e.target.membership.value.trim();
+              const user = users.find(
+                (u) => u.membershipId.toLowerCase() === membershipId.toLowerCase()
+              );
+              if (!user) return alert('No user found with that Membership ID');
+              setCurrentUser(user);
+            }}
+          >
+            <label>Membership ID</label>
+            <input name="membership" placeholder="e.g. ADM001" required />
+            <label>Password</label>
+            <input name="password" type="password" placeholder="Enter password" />
+            <button className="primary-btn full" type="submit">Sign In</button>
+          </form>
+
+          <div className="demo-hint">
+            <strong>Demo admin:</strong> 1 / Dash
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== ADMIN VIEW =====
+  const filtered = users.filter((u) => {
+    const q = search.toLowerCase();
+    const matchesSearch =
+      u.name?.toLowerCase().includes(q) ||
+      u.membershipId?.toLowerCase().includes(q);
+    const matchesRole = !roleFilter || u.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
+  const openAdd = () => {
+    setForm(emptyForm);
+    setEditing(null);
+    setModalOpen(true);
+  };
+
+  const openEdit = (user) => {
+    setForm({ ...user, password: '' });
+    setEditing(user.id);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setForm(emptyForm);
+    setEditing(null);
+  };
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -15,165 +95,191 @@ function Users() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     if (!form.name.trim() || !form.membershipId.trim()) {
       return alert('Name and Membership ID are required');
     }
 
-    if (editingId) {
-      // Update existing user
-      setUsers(users.map((u) => (u.id === editingId ? { ...u, ...form } : u)));
-      setEditingId(null);
+    // Check duplicate membership ID
+    const duplicate = users.find(
+      (u) =>
+        u.membershipId.toLowerCase() === form.membershipId.toLowerCase() &&
+        u.id !== editing
+    );
+    if (duplicate) return alert('Membership ID already exists');
+
+    if (editing) {
+      setUsers(
+        users.map((u) => (u.id === editing ? { ...u, ...form, id: editing } : u))
+      );
+      if (currentUser.id === editing) {
+        setCurrentUser({ ...currentUser, ...form, id: editing });
+      }
     } else {
-      // Add new user
       const newUser = { ...form, id: Date.now() };
       setUsers([...users, newUser]);
     }
-
-    setForm({ name: '', membershipId: '', role: 'member' });
-  };
-
-  const editUser = (user) => {
-    setForm({ name: user.name, membershipId: user.membershipId, role: user.role });
-    setEditingId(user.id);
+    closeModal();
   };
 
   const deleteUser = (id) => {
+    if (id === currentUser.id) {
+      return alert("You can't delete yourself while logged in");
+    }
     if (window.confirm('Delete this user?')) {
       setUsers(users.filter((u) => u.id !== id));
     }
   };
 
-  const login = (user) => setCurrentUser(user);
   const logout = () => setCurrentUser(null);
 
-  // ===== LOGIN VIEW (not logged in) =====
-  if (!currentUser) {
-    return (
-      <div className="page">
-        <h2>Login</h2>
-        <p className="hint">Select a user to log in as:</p>
-
-        {users.length === 0 ? (
-          <p className="empty-msg">No users yet. Create one below.</p>
-        ) : (
-          <ul className="user-list">
-            {users.map((u) => (
-              <li key={u.id}>
-                <div>
-                  <strong>{u.name}</strong>{' '}
-                  <span className="role-tag">{u.role}</span>
-                  <br />
-                  <small>ID: {u.membershipId}</small>
-                </div>
-                <button onClick={() => login(u)}>Login</button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        <h3 className="section-title">Create New User</h3>
-        <form className="user-form" onSubmit={handleSubmit}>
-          <input
-            name="name"
-            placeholder="Full Name"
-            value={form.name}
-            onChange={handleChange}
-          />
-          <input
-            name="membershipId"
-            placeholder="Membership ID"
-            value={form.membershipId}
-            onChange={handleChange}
-          />
-          <select name="role" value={form.role} onChange={handleChange}>
-            <option value="member">Member</option>
-            <option value="librarian">Librarian</option>
-            <option value="admin">Admin</option>
-          </select>
-          <button type="submit">Add User</button>
-        </form>
-      </div>
-    );
-  }
-
-  // ===== ADMIN VIEW (logged in) =====
   return (
-    <div className="page">
-      <div className="user-header">
+    <>
+      <div className="page-actions">
         <div>
-          <h2>User Management</h2>
-          <p>
-            Logged in as: <strong>{currentUser.name}</strong>{' '}
-            <span className="role-tag">{currentUser.role}</span>
-          </p>
+          <h3>User Management</h3>
+          <p>Manage library members and administrator accounts.</p>
         </div>
-        <button className="logout-btn" onClick={logout}>Logout</button>
+        <div className="page-actions-right">
+          <span className="whoami">
+            Logged in: <strong>{currentUser.name}</strong>
+          </span>
+          <button className="primary-btn" onClick={openAdd}>Add New User</button>
+          <button className="danger-outline" onClick={logout}>Logout</button>
+        </div>
       </div>
 
-      <form className="user-form" onSubmit={handleSubmit}>
-        <input
-          name="name"
-          placeholder="Full Name"
-          value={form.name}
-          onChange={handleChange}
-        />
-        <input
-          name="membershipId"
-          placeholder="Membership ID"
-          value={form.membershipId}
-          onChange={handleChange}
-        />
-        <select name="role" value={form.role} onChange={handleChange}>
-          <option value="member">Member</option>
-          <option value="librarian">Librarian</option>
-          <option value="admin">Admin</option>
-        </select>
-        <button type="submit">{editingId ? 'Save Changes' : 'Add User'}</button>
-        {editingId && (
-          <button
-            type="button"
-            className="cancel-btn"
-            onClick={() => {
-              setEditingId(null);
-              setForm({ name: '', membershipId: '', role: 'member' });
-            }}
-          >
-            Cancel
-          </button>
-        )}
-      </form>
+      <div className="panel">
+        <div className="toolbar">
+          <input
+            type="search"
+            placeholder="Search by name or membership ID..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+            <option value="">All roles</option>
+            <option>Admin</option>
+            <option>Librarian</option>
+            <option>Member</option>
+          </select>
+        </div>
 
-      <table className="data-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Membership ID</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.length === 0 ? (
-            <tr>
-              <td colSpan="4">No users yet.</td>
-            </tr>
-          ) : (
-            users.map((u) => (
-              <tr key={u.id}>
-                <td>{u.name}</td>
-                <td>{u.membershipId}</td>
-                <td><span className="role-tag">{u.role}</span></td>
-                <td>
-                  <button onClick={() => editUser(u)}>Update</button>
-                  <button onClick={() => deleteUser(u.id)}>Delete</button>
-                </td>
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Membership ID</th>
+                <th>Role</th>
+                <th>Actions</th>
               </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan="4">No users match your search.</td>
+                </tr>
+              ) : (
+                filtered.map((u) => (
+                  <tr key={u.id}>
+                    <td>{u.name}</td>
+                    <td>{u.membershipId}</td>
+                    <td>
+                      <span className="role-tag">{u.role}</span>
+                    </td>
+                    <td>
+                      <button
+                        className="icon-btn edit"
+                        onClick={() => openEdit(u)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="icon-btn delete"
+                        onClick={() => deleteUser(u.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {modalOpen && (
+        <div className="modal" onClick={closeModal}>
+          <div
+            className="modal-card small-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <div>
+                <h3>{editing ? 'Edit User' : 'Add New User'}</h3>
+                <p>
+                  {editing ? 'Update user details.' : 'Create a library account.'}
+                </p>
+              </div>
+              <button className="close-btn" onClick={closeModal}>
+                ×
+              </button>
+            </div>
+
+            <form className="form-grid" onSubmit={handleSubmit}>
+              <div className="field full-field">
+                <label>Name</label>
+                <input
+                  name="name"
+                  value={form.name}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="field full-field">
+                <label>Membership ID</label>
+                <input
+                  name="membershipId"
+                  value={form.membershipId}
+                  onChange={handleChange}
+                />
+              </div>
+              <div className="field full-field">
+                <label>Role</label>
+                <select name="role" value={form.role} onChange={handleChange}>
+                  <option>Member</option>
+                  <option>Librarian</option>
+                  <option>Admin</option>
+                </select>
+              </div>
+              <div className="field full-field">
+                <label>Password</label>
+                <input
+                  name="password"
+                  type="password"
+                  placeholder="Default: library123"
+                  value={form.password}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="modal-actions full-field">
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  onClick={closeModal}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="primary-btn">
+                  Save User
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

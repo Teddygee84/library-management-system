@@ -1,85 +1,156 @@
-.page h2 {
-  margin-bottom: 1rem;
-}
-
-.section-title {
-  margin: 2rem 0 1rem;
-}
-
-/* Transaction form */
-.tx-form {
+/* ===== Transactions page ===== */
+.page-actions {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
-  gap: 0.5rem;
+}
+
+.page-actions h3 { color: #2c3e50; margin-bottom: 0.2rem; }
+.page-actions p { color: #7f8c8d; font-size: 0.9rem; }
+
+/* Two-column layout */
+.transaction-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .transaction-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Panel */
+.panel {
   background: white;
-  padding: 1rem;
-  border-radius: 8px;
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid #eef0f2;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.panel-title {
+  color: #2c3e50;
   margin-bottom: 1rem;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  align-items: center;
 }
 
-.tx-form select,
-.tx-form input {
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  flex: 1;
-  min-width: 120px;
-  font-size: 0.95rem;
+.panel-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
-.tx-form button {
-  padding: 0.5rem 1rem;
-  background: #3498db;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.95rem;
+.panel-heading h3 { color: #2c3e50; margin-bottom: 0.2rem; }
+.panel-heading p { color: #7f8c8d; font-size: 0.85rem; }
+
+/* Form grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
 }
 
-.tx-form button:hover {
-  background: #2980b9;
-}
+.form-grid .full-field { grid-column: 1 / -1; }
 
-/* Table */
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-}
-
-.data-table th,
-.data-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-.data-table th {
-  background: #ecf0f1;
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  color: #2c3e50;
+  margin-bottom: 0.3rem;
   font-weight: 600;
 }
 
-/* Transaction type badges */
+.field input,
+.field select {
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid #d5dbdf;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: white;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: #3498db;
+}
+
+/* Buttons */
+.primary-btn {
+  padding: 0.6rem 1.1rem;
+  background: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.primary-btn:hover { background: #2980b9; }
+.primary-btn.full-field { margin-top: 0.5rem; }
+
+.danger-outline {
+  padding: 0.5rem 0.9rem;
+  background: transparent;
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.danger-outline:hover { background: #e74c3c; color: white; }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+
+.table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.table-wrap th,
+.table-wrap td {
+  text-align: left;
+  padding: 0.65rem 0.5rem;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.table-wrap th {
+  color: #7f8c8d;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: #fafbfc;
+}
+
+.small-td {
+  font-size: 0.78rem;
+  color: #95a5a6;
+  white-space: nowrap;
+}
+
+/* Transaction badges */
 .tx-badge {
   display: inline-block;
   padding: 0.2rem 0.6rem;
   border-radius: 12px;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
-.tx-badge.borrow {
-  background: #ffe5e5;
-  color: #c0392b;
-}
-
-.tx-badge.add {
-  background: #e5f6e5;
-  color: #27ae60;
-}
+.tx-badge.borrow { background: #ffe5e5; color: #c0392b; }
+.tx-badge.add { background: #e5f6e5; color: #27ae60; }

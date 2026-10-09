@@ -1,4 +1,4 @@
-# 📚 Community Library Management System
+#  Community Library Management System
 
 A web-based library management system built with **React** for the BIWA2110 Web Application Development assignment.
 
@@ -10,24 +10,24 @@ A web-based library management system built with **React** for the BIWA2110 Web 
 
 ## Features
 
-### 📊 Dashboard
+### Dashboard
 - Live stats: unique titles, total copies, users, low-stock count
 - Book availability grid
 - Automatically highlights books with fewer than 2 copies in red
 
-### 📖 Book Management
+### Book Management
 - Add new books (title, author, genre, ISBN, quantity)
 - Update existing books
 - Delete books
 - Full form validation
 
-### 🔄 Transactions
+### Transactions
 - Borrow books (deducts stock)
 - Add stock (increases stock)
 - Transaction history log with date, type, and amount
 - Prevents borrowing more than available stock
 
-### 👥 User Management
+### User Management
 - Login system (select user to log in)
 - Add new users (name, membership ID, role)
 - Update and delete users (admin view only)
